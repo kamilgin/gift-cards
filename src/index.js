@@ -206,7 +206,7 @@ class GiftCardBrowser extends Component {
     );
   }
 }
-
+//test
 function GiftCardStore() {
   let cardsList = [
     ["10000", "Plain red card", [25, 50, 100, -1], [], 'card1.png'],
