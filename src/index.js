@@ -62,7 +62,7 @@ const AmountInput = ({label, type, id, value, handleChange, cardDenominations}) 
     /><Select 
       id={id}
       value={value}
-      onChange={handleChange}
+      handleChange={handleChange}
       options={cardDenominations}
     /></div>;
   } else {
@@ -70,7 +70,7 @@ const AmountInput = ({label, type, id, value, handleChange, cardDenominations}) 
       inputs = <Select 
         id={id}
         value={value}
-        onChange={handleChange}
+        handleChange={handleChange}
         options={cardDenominations}
       />
     });
@@ -132,24 +132,11 @@ class GiftCardBrowser extends Component {
   constructor(props) {
     super(props);
 
-    let firstCard = this.props.cardsList[0];
-    this.state = {
-      'cardID': firstCard[0],
-      'cardTitle': firstCard[1],
-      'cardDenominations': firstCard[2],
-      'cardCategory': firstCard[3],
-      'cardImage': firstCard[4]
-    };
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(event) {
-    this.setState({
-      'cardID': event.target.dataset.cardId,
-      'cardTitle': event.target.dataset.cardTitle,
-      'cardDenominations': event.target.dataset.cardDenominations,
-      'cardImage': event.target.dataset.cardImage
-    })
+    this.props.onCardSelect(event);
   }
 
   render() {
@@ -158,8 +145,8 @@ class GiftCardBrowser extends Component {
         <div id="card_preview__container">
           <img
             className='card_preview__image'
-            alt={this.state.cardTitle}
-            src={'/src/images/' + this.state.cardImage}
+            alt={this.props.cardTitle}
+            src={'/src/images/' + this.props.cardImage}
           />
         </div>
         <div id="card_category__container">
@@ -199,24 +186,54 @@ class GiftCardBrowser extends Component {
     );
   }
 }
-//test
-function GiftCardStore() {
-  let cardsList = [
-    ["10000", "Plain red card", [25, 50, 100, -1], [], 'card1.png'],
-    ["10001", "$100 Card - Potatoes", [100], ['Fixed Amount'], 'card2.png'],
-    ["10002", "Grilled Fish Card", [-1], ['Custom Amount'], 'card3.png'],
-    ["10003", "Salmon & Asparagus Card", [25, 50, 100], ['Fixed Amount'], 'card4.png'],
-    ["10004", "Birthday Card", [25, 50, 100, 150, 200, -1], ['Birthday', 'Custom Amount'], 'card5.png'],
-    ["10005", "Plain Potatoes Card", [5, 10, 25, 50], ['Fixed Amount'], 'card6.png']
-  ];
-  let categoryListFull = cardsList.map(card => card[3]).flat();
-  let cardCategories = categoryListFull.filter((value, index) => categoryListFull.indexOf(value) === index);
 
-  return <div id='container__gift-card-form' className='container1024'>
-    <GiftCardBrowser cardsList={cardsList} cardCategories={cardCategories}/>
-    <GiftCardForm />
-  </div>
+let cardsList = [
+  ["10000", "Plain red card", [25, 50, 100, -1], [], 'card1.png'],
+  ["10001", "$100 Card - Potatoes", [100], ['Fixed Amount'], 'card2.png'],
+  ["10002", "Grilled Fish Card", [-1], ['Custom Amount'], 'card3.png'],
+  ["10003", "Salmon & Asparagus Card", [25, 50, 100], ['Fixed Amount'], 'card4.png'],
+  ["10004", "Birthday Card", [25, 50, 100, 150, 200, -1], ['Birthday', 'Custom Amount'], 'card5.png'],
+  ["10005", "Plain Potatoes Card", [5, 10, 25, 50], ['Fixed Amount'], 'card6.png']
+];
+let categoryListFull = cardsList.map(card => card[3]).flat();
+let cardCategories = categoryListFull.filter((value, index) => categoryListFull.indexOf(value) === index);
+
+class GiftCardStore extends Component {
+  constructor(props) {
+    super(props);
+    let firstCard = this.props.cardsList[0];
+    this.state = {
+      'cardParamID': firstCard[0],
+      'cardParamTitle': firstCard[1],
+      'cardParamDenominations': firstCard[2],
+      'cardParamCategory': firstCard[3],
+      'cardParamImage': firstCard[4]
+    };
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({
+      'cardParamID': event.target.dataset.cardId,
+      'cardParamTitle': event.target.dataset.cardTitle,
+      'cardParamDenominations': event.target.dataset.cardDenominations,
+      'cardParamImage': event.target.dataset.cardImage
+    })
+  }
+
+  render() {
+    return (<div id='container__gift-card-form' className='container1024'>
+      <GiftCardBrowser 
+        cardsList={cardsList}
+        cardCategories={cardCategories}
+        onCardSelect={this.handleChange}
+        cardTitle={this.state.cardParamTitle}
+        cardImage={this.state.cardParamImage}
+      />
+      <GiftCardForm />
+    </div>);
+  }
 }
 
 const wrapper = document.getElementById('container__app');
-wrapper ? ReactDOM.render(<GiftCardStore />, wrapper) : false;
+wrapper ? ReactDOM.render(<GiftCardStore cardsList={cardsList}/>, wrapper) : false;
