@@ -106,18 +106,11 @@ class GiftCardForm extends Component {
   render() {
     return (
       <form id='gift-card-form' onSubmit={this.handleSubmit}>
-        {/* <Input
-          label='Amount'
-          type='number'
-          id='amount'
-          value={this.state.amount}
-          handleChange={this.handleChange}
-        /> */}
         <AmountInput 
           label='Amount'
           type='number'
           id='amount'
-          value={this.state.amount}
+          value={this.state.cardItem.amount}
           handleChange={this.handleChange}
           cardDenominations={['5','-1']}
         />
@@ -125,7 +118,7 @@ class GiftCardForm extends Component {
           label='Quantity'
           type='number'
           id='quantity'
-          value={this.state.quantity}
+          value={this.state.cardItem.quantity}
           options={[1,2,3,4,5,6,7,8,9,10]}
           handleChange={this.handleChange}
         />
@@ -206,7 +199,7 @@ class GiftCardBrowser extends Component {
     );
   }
 }
-//test
+
 function GiftCardStore() {
   let cardsList = [
     ["10000", "Plain red card", [25, 50, 100, -1], [], 'card1.png'],
