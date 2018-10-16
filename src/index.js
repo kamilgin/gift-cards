@@ -106,13 +106,6 @@ class GiftCardForm extends Component {
   render() {
     return (
       <form id='gift-card-form' onSubmit={this.handleSubmit}>
-        {/* <Input
-          label='Amount'
-          type='number'
-          id='amount'
-          value={this.state.amount}
-          handleChange={this.handleChange}
-        /> */}
         <AmountInput 
           label='Amount'
           type='number'
