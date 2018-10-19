@@ -26,7 +26,7 @@ const Select = ({ label, id, value, options, handleChange }) => (
       onChange={handleChange}
       required
     >
-      {options.map((option) => <option key={option}>{option}</option>)}
+      {options.map((option) => option === '-1' ? false : <option key={option}>{option}</option>)}
     </select>
   </div>
 );
@@ -53,27 +53,30 @@ const AmountInput = ({label, type, id, value, handleChange, cardDenominations}) 
       handleChange={handleChange}
     />;
   } else if(custom) {
-    inputs = <div><Input 
-      label={label}
-      type={type}
-      id={'amount-text-field'}
-      value={value}
-      handleChange={handleChange}
-    /><Select 
-      id={id}
-      value={value}
-      handleChange={handleChange}
-      options={cardDenominations}
-    /></div>;
-  } else {
-    cardDenominations.map((amount) => {
-      inputs = <Select 
+    inputs = <div>
+      <Select 
         id={id}
         value={value}
         handleChange={handleChange}
         options={cardDenominations}
+        label={label}
       />
-    });
+      <Input 
+        label={label}
+        type={type}
+        id={'amount-text-field'}
+        value={value}
+        handleChange={handleChange}
+      />
+    </div>;
+  } else {
+    inputs = <Select 
+      id={id}
+      value={value}
+      handleChange={handleChange}
+      options={cardDenominations}
+      label={label}
+    />
   }
   return inputs;
 }
@@ -82,24 +85,16 @@ class GiftCardForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      amount: '',
-      quantity: '',
-      cardImage: '',
-      msgTo: '',
-      msgFrom: '',
-      msgText: ''
-    };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({ [event.target.id]: event.target.value })
+  handleChange(e) {
+    this.props.updateSelection(e);
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
+  handleSubmit(e) {
+    e.preventDefault();
     console.log(this.state);
   }
 
@@ -110,15 +105,15 @@ class GiftCardForm extends Component {
           label='Amount'
           type='number'
           id='amount'
-          value={this.state.amount}
+          value={this.props.selectedAmount}
           handleChange={this.handleChange}
-          cardDenominations={['5','-1']}
+          cardDenominations={this.props.cardDenominations}
         />
         <Select
           label='Quantity'
           type='number'
           id='quantity'
-          value={this.state.quantity}
+          value={this.props.selectedQuantity}
           options={[1,2,3,4,5,6,7,8,9,10]}
           handleChange={this.handleChange}
         />
@@ -188,12 +183,12 @@ class GiftCardBrowser extends Component {
 }
 
 let cardsList = [
-  ["10000", "Plain red card", [25, 50, 100, -1], [], 'card1.png'],
-  ["10001", "$100 Card - Potatoes", [100], ['Fixed Amount'], 'card2.png'],
-  ["10002", "Grilled Fish Card", [-1], ['Custom Amount'], 'card3.png'],
-  ["10003", "Salmon & Asparagus Card", [25, 50, 100], ['Fixed Amount'], 'card4.png'],
-  ["10004", "Birthday Card", [25, 50, 100, 150, 200, -1], ['Birthday', 'Custom Amount'], 'card5.png'],
-  ["10005", "Plain Potatoes Card", [5, 10, 25, 50], ['Fixed Amount'], 'card6.png']
+  ["10000", "Plain red card", ["25", "50", "100", "-1"], [], 'card1.png'],
+  ["10001", "$100 Card - Potatoes", ["100"], ['Fixed Amount'], 'card2.png'],
+  ["10002", "Grilled Fish Card", ["-1"], ['Custom Amount'], 'card3.png'],
+  ["10003", "Salmon & Asparagus Card", ["25", "50", "100"], ['Fixed Amount'], 'card4.png'],
+  ["10004", "Birthday Card", ["25", "50", "100", "150", "200", "-1"], ['Birthday', 'Custom Amount'], 'card5.png'],
+  ["10005", "Plain Potatoes Card", ["5", "10", "25", "50"], ['Fixed Amount'], 'card6.png']
 ];
 let categoryListFull = cardsList.map(card => card[3]).flat();
 let cardCategories = categoryListFull.filter((value, index) => categoryListFull.indexOf(value) === index);
@@ -207,17 +202,24 @@ class GiftCardStore extends Component {
       'cardParamTitle': firstCard[1],
       'cardParamDenominations': firstCard[2],
       'cardParamCategory': firstCard[3],
-      'cardParamImage': firstCard[4]
+      'cardParamImage': firstCard[4],
+      'selected-amount': '',
+      'selected-quantity': '',
+      'selected-cardImage': '',
+      'selected-msgTo': '',
+      'selected-msgFrom': '',
+      'selected-msgText': ''
     };
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(event) {
+  handleChange(e) {
     this.setState({
-      'cardParamID': event.target.dataset.cardId,
-      'cardParamTitle': event.target.dataset.cardTitle,
-      'cardParamDenominations': event.target.dataset.cardDenominations,
-      'cardParamImage': event.target.dataset.cardImage
+      cardParamID: e.target.dataset.cardId,
+      cardParamTitle: e.target.dataset.cardTitle,
+      cardParamDenominations: e.target.dataset.cardDenominations.split(','),
+      cardParamImage: e.target.dataset.cardImage,
+      ['selected-' + e.target.id]: e.target.value
     })
   }
 
@@ -230,7 +232,10 @@ class GiftCardStore extends Component {
         cardTitle={this.state.cardParamTitle}
         cardImage={this.state.cardParamImage}
       />
-      <GiftCardForm />
+      <GiftCardForm 
+        updateSelection={this.handleChange}
+        cardDenominations={this.state.cardParamDenominations}
+      />
     </div>);
   }
 }
