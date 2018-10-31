@@ -26,8 +26,27 @@ const Select = ({ label, id, value, options, handleChange }) => (
       onChange={handleChange}
       required
     >
-      {options.map((option) => option === '-1' ? false : <option key={option}>{option}</option>)}
+      {options.map(option => option === '-1' ? false : <option key={option}>{option}</option>)}
     </select>
+  </div>
+);
+
+const AmountRadioGroup = ({ name, options, radioStyle, handleChange, selectedValue }) => (
+  <div id={`radio-group-${name}`} className={`radio-group ${radioStyle}`}>
+    {options.map(option => (
+      <div className={`radio-btn-${name}`} key={option}>
+        <input
+          type='radio'
+          id={`radio-btn-amount-${option}`}
+          value={option}
+          checked={selectedValue === option}
+          onChange={handleChange}
+        />
+        <label className='radio-btn-label' htmlFor={`radio-btn-amount-${option}`}>
+          {option}
+        </label>
+      </div>
+    ))}
   </div>
 );
 
@@ -54,12 +73,12 @@ const AmountInput = ({label, type, id, value, handleChange, cardDenominations}) 
     />;
   } else if(custom) {
     inputs = <div>
-      <Select 
-        id={id}
-        value={value}
-        handleChange={handleChange}
+      <AmountRadioGroup 
+        name='amount'
         options={cardDenominations}
-        label={label}
+        radioStyle='amount-buttons'
+        selectedValue={value}
+        handleChange={handleChange}
       />
       <Input 
         label={label}
@@ -70,12 +89,12 @@ const AmountInput = ({label, type, id, value, handleChange, cardDenominations}) 
       />
     </div>;
   } else {
-    inputs = <Select 
-      id={id}
-      value={value}
-      handleChange={handleChange}
+    inputs = <AmountRadioGroup
+      name='amount'
       options={cardDenominations}
-      label={label}
+      radioStyle='amount-buttons'
+      selectedValue={value}
+      handleChange={handleChange}
     />
   }
   return inputs;
@@ -95,7 +114,7 @@ class GiftCardForm extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    console.log(this.state);
+    
   }
 
   render() {
@@ -224,18 +243,23 @@ class GiftCardStore extends Component {
       'selected-msgText': '',
       'filterActive': ''
     };
-    this.handleChange = this.handleChange.bind(this);
+    this.handleCardSelect = this.handleCardSelect.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
   }
 
-  handleChange(e) {
+  handleCardSelect(e) {
     this.setState({
       cardParamID: e.target.dataset.cardId,
       cardParamTitle: e.target.dataset.cardTitle,
       cardParamDenominations: e.target.dataset.cardDenominations.split(','),
-      cardParamImage: e.target.dataset.cardImage,
-      ['selected-' + e.target.id]: e.target.value
+      cardParamImage: e.target.dataset.cardImage
     })
+  }
+
+  handleCardSettings(e) {
+    this.setState({
+      'selected-amount': e.target.value
+    });
   }
 
   handleFilter(e) {
@@ -259,13 +283,13 @@ class GiftCardStore extends Component {
         cardsList={this.state.filteredCardsList}
         cardCategories={cardCategories}
         filterActive={this.state.filterActive}
-        onCardSelect={this.handleChange}
+        onCardSelect={this.handleCardSelect}
         onFilter={this.handleFilter}
         cardTitle={this.state.cardParamTitle}
         cardImage={this.state.cardParamImage}
       />
       <GiftCardForm 
-        updateSelection={this.handleChange}
+        updateSelection={this.handleCardSelect}
         cardDenominations={this.state.cardParamDenominations}
       />
     </div>);
