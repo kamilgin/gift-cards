@@ -79,19 +79,15 @@ body {
 .btn-submit:hover {
   background-color: #3d3d3d;
 }
-.btn_filter {
+.btn_category {
   padding: 5px;
   border: 1px solid #ccc;
 }
-.btn_filter ~ .btn_filter {
+.btn_category ~ .btn_category {
   margin-left: 10px;
 }
-.btn_filter:hover {
+.btn_category:hover {
   background-color: #ccc;
-}
-.filter-active {
-  background-color: #000;
-  color: #fff;
 }
 input[type='radio'] ~ label,
 input[type='checked'] ~ label,

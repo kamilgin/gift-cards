@@ -128,15 +128,10 @@ class GiftCardBrowser extends Component {
     super(props);
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
   }
 
-  handleChange(e) {
-    this.props.onCardSelect(e);
-  }
-
-  handleFilter(e) {
-    this.props.onFilter(e);
+  handleChange(event) {
+    this.props.onCardSelect(event);
   }
 
   render() {
@@ -151,15 +146,7 @@ class GiftCardBrowser extends Component {
         </div>
         <div id="card_category__container">
           {this.props.cardCategories.map((category) => {
-            return (
-              <button 
-                className={`btn btn_filter ${this.props.filterActive === category ? 'filter-active' : ''}`}
-                key={category}
-                value={category}
-                onClick={this.handleFilter}
-              >
-                {category}
-              </button>);
+            return <button className='btn btn_category' key={category} value={category}>{category}</button>
           })}
         </div>
         <div id="cards__container">
@@ -195,22 +182,22 @@ class GiftCardBrowser extends Component {
   }
 }
 
-const CardsList = [
+let cardsList = [
   ["10000", "Plain red card", ["25", "50", "100", "-1"], [], 'card1.png'],
   ["10001", "$100 Card - Potatoes", ["100"], ['Fixed Amount'], 'card2.png'],
   ["10002", "Grilled Fish Card", ["-1"], ['Custom Amount'], 'card3.png'],
-  ["10003", "Salmon & Asparagus Card", ["25", "50", "100"], ['Fixed Amount', 'Birthday'], 'card4.png'],
+  ["10003", "Salmon & Asparagus Card", ["25", "50", "100"], ['Fixed Amount'], 'card4.png'],
   ["10004", "Birthday Card", ["25", "50", "100", "150", "200", "-1"], ['Birthday', 'Custom Amount'], 'card5.png'],
   ["10005", "Plain Potatoes Card", ["5", "10", "25", "50"], ['Fixed Amount'], 'card6.png']
 ];
+let categoryListFull = cardsList.map(card => card[3]).flat();
+let cardCategories = categoryListFull.filter((value, index) => categoryListFull.indexOf(value) === index);
 
 class GiftCardStore extends Component {
   constructor(props) {
     super(props);
-    let firstCard = CardsList[0];
+    let firstCard = this.props.cardsList[0];
     this.state = {
-      'cardsList': CardsList,
-      'filteredCardsList': CardsList,
       'cardParamID': firstCard[0],
       'cardParamTitle': firstCard[1],
       'cardParamDenominations': firstCard[2],
@@ -221,11 +208,9 @@ class GiftCardStore extends Component {
       'selected-cardImage': '',
       'selected-msgTo': '',
       'selected-msgFrom': '',
-      'selected-msgText': '',
-      'filterActive': ''
+      'selected-msgText': ''
     };
     this.handleChange = this.handleChange.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
   }
 
   handleChange(e) {
@@ -238,29 +223,12 @@ class GiftCardStore extends Component {
     })
   }
 
-  handleFilter(e) {
-    let filterBtn = e.target;
-    let category = filterBtn.value;
-    let filteredCardsList = CardsList.filter(card => card[3].indexOf(category));
-    filterBtn.classList.add('active-filter');
-    this.setState({
-      'filterActive': category,
-      'filteredCardsList': filteredCardsList
-    });
-  }
-
   render() {
-    let categoryListFull = this.state.cardsList.map(card => card[3]).flat();
-    let cardCategories = categoryListFull.filter((value, index) => categoryListFull.indexOf(value) === index);
-    cardCategories.unshift('All Cards');
-
     return (<div id='container__gift-card-form' className='container1024'>
       <GiftCardBrowser 
-        cardsList={this.state.filteredCardsList}
+        cardsList={cardsList}
         cardCategories={cardCategories}
-        filterActive={this.state.filterActive}
         onCardSelect={this.handleChange}
-        onFilter={this.handleFilter}
         cardTitle={this.state.cardParamTitle}
         cardImage={this.state.cardParamImage}
       />
@@ -273,4 +241,4 @@ class GiftCardStore extends Component {
 }
 
 const wrapper = document.getElementById('container__app');
-wrapper ? ReactDOM.render(<GiftCardStore />, wrapper) : false;
+wrapper ? ReactDOM.render(<GiftCardStore cardsList={cardsList}/>, wrapper) : false;
